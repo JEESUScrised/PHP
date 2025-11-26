@@ -45,6 +45,9 @@ a2enmod headers
 
 echo ""
 echo "Настройка MySQL..."
+systemctl start mysql
+systemctl enable mysql
+
 MYSQL_ROOT_PASSWORD=""
 read -sp "Введите пароль для MySQL root (или нажмите Enter для автоматической генерации): " MYSQL_ROOT_PASSWORD
 echo ""
@@ -56,8 +59,20 @@ if [ -z "$MYSQL_ROOT_PASSWORD" ]; then
     chmod 600 /root/mysql_root_password.txt
 fi
 
-mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_ROOT_PASSWORD}';" 2>/dev/null || true
-mysql -e "FLUSH PRIVILEGES;"
+echo ""
+echo "Установка пароля для MySQL root..."
+sudo mysql <<MYSQL_SCRIPT
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_ROOT_PASSWORD}';
+DELETE FROM mysql.user WHERE User='';
+DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+DROP DATABASE IF EXISTS test;
+DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
+FLUSH PRIVILEGES;
+MYSQL_SCRIPT
+
+if [ $? -ne 0 ]; then
+    echo "Предупреждение: Не удалось установить пароль через sudo mysql. Продолжаем..."
+fi
 
 echo ""
 echo "Создание директории проекта..."
@@ -96,7 +111,10 @@ HTACCESS_EOF
 
 echo ""
 echo "Создание базы данных..."
-mysql -u root -p"${MYSQL_ROOT_PASSWORD}" < /var/www/eshop/core/eshop.sql
+mysql -u root -p"${MYSQL_ROOT_PASSWORD}" < /var/www/eshop/core/eshop.sql 2>/dev/null || {
+    echo "Попытка создания БД без пароля..."
+    sudo mysql < /var/www/eshop/core/eshop.sql
+}
 
 echo ""
 echo "Очистка временных файлов..."

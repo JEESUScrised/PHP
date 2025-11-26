@@ -110,6 +110,40 @@ sudo certbot certificates
 
 ## Устранение проблем
 
+### Ошибка MySQL: Access denied for user "root@localhost"
+
+Если при установке возникает ошибка доступа к MySQL:
+
+**Вариант 1: Использовать скрипт настройки MySQL**
+```bash
+cd /tmp/deploy
+chmod +x setup-mysql.sh
+sudo bash setup-mysql.sh
+```
+
+**Вариант 2: Настроить вручную**
+```bash
+sudo mysql
+```
+
+В MySQL консоли выполните:
+```sql
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'ваш_пароль';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+Затем создайте базу данных:
+```bash
+mysql -u root -p < /var/www/eshop/core/eshop.sql
+```
+
+**Вариант 3: Если MySQL не запущен**
+```bash
+sudo systemctl start mysql
+sudo systemctl enable mysql
+```
+
 ### Ошибка 403 Forbidden
 ```bash
 sudo chown -R www-data:www-data /var/www/eshop

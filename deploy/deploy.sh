@@ -75,12 +75,20 @@ if [ -f "${PROJECT_DIR}/core/eshop.sql" ]; then
     MYSQL_ROOT_PASSWORD=""
     if [ -f "/root/mysql_root_password.txt" ]; then
         MYSQL_ROOT_PASSWORD=$(cat /root/mysql_root_password.txt)
+        echo "Используется сохраненный пароль MySQL root"
     else
         read -sp "Введите пароль MySQL root: " MYSQL_ROOT_PASSWORD
         echo ""
     fi
     
-    mysql -u root -p"${MYSQL_ROOT_PASSWORD}" < ${PROJECT_DIR}/core/eshop.sql 2>/dev/null || echo "База данных уже существует или произошла ошибка"
+    if [ -n "$MYSQL_ROOT_PASSWORD" ]; then
+        mysql -u root -p"${MYSQL_ROOT_PASSWORD}" < ${PROJECT_DIR}/core/eshop.sql 2>/dev/null || {
+            echo "Попытка без пароля..."
+            sudo mysql < ${PROJECT_DIR}/core/eshop.sql 2>/dev/null || echo "База данных уже существует или произошла ошибка"
+        }
+    else
+        sudo mysql < ${PROJECT_DIR}/core/eshop.sql 2>/dev/null || echo "База данных уже существует или произошла ошибка"
+    fi
 fi
 
 echo ""
