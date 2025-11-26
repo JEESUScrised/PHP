@@ -65,9 +65,8 @@ echo "Установка пароля для MySQL root..."
 MYSQL_SETUP_SUCCESS=0
 
 echo "Попытка 1: Подключение через sudo mysql..."
-sudo mysql <<MYSQL_SCRIPT 2>/dev/null && MYSQL_SETUP_SUCCESS=1 || true
-
-if [ $MYSQL_SETUP_SUCCESS -eq 1 ]; then
+if sudo mysql -e "SELECT 1;" 2>/dev/null; then
+    MYSQL_SETUP_SUCCESS=1
     sudo mysql <<MYSQL_SCRIPT
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_ROOT_PASSWORD}';
 FLUSH PRIVILEGES;
@@ -81,9 +80,8 @@ fi
 
 if [ $MYSQL_SETUP_SUCCESS -eq 0 ]; then
     echo "Попытка 2: Подключение с пустым паролем..."
-    mysql -u root <<MYSQL_SCRIPT 2>/dev/null && MYSQL_SETUP_SUCCESS=1 || true
-    
-    if [ $MYSQL_SETUP_SUCCESS -eq 1 ]; then
+    if mysql -u root -e "SELECT 1;" 2>/dev/null; then
+        MYSQL_SETUP_SUCCESS=1
         mysql -u root <<MYSQL_SCRIPT
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_ROOT_PASSWORD}';
 FLUSH PRIVILEGES;
