@@ -61,17 +61,53 @@ fi
 
 echo ""
 echo "Установка пароля для MySQL root..."
-sudo mysql <<MYSQL_SCRIPT
+
+MYSQL_SETUP_SUCCESS=0
+
+echo "Попытка 1: Подключение через sudo mysql..."
+sudo mysql <<MYSQL_SCRIPT 2>/dev/null && MYSQL_SETUP_SUCCESS=1 || true
+
+if [ $MYSQL_SETUP_SUCCESS -eq 1 ]; then
+    sudo mysql <<MYSQL_SCRIPT
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_ROOT_PASSWORD}';
-DELETE FROM mysql.user WHERE User='';
-DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
-DROP DATABASE IF EXISTS test;
-DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 FLUSH PRIVILEGES;
 MYSQL_SCRIPT
+    if [ $? -eq 0 ]; then
+        echo "Пароль успешно установлен через sudo mysql"
+    else
+        MYSQL_SETUP_SUCCESS=0
+    fi
+fi
 
-if [ $? -ne 0 ]; then
-    echo "Предупреждение: Не удалось установить пароль через sudo mysql. Продолжаем..."
+if [ $MYSQL_SETUP_SUCCESS -eq 0 ]; then
+    echo "Попытка 2: Подключение с пустым паролем..."
+    mysql -u root <<MYSQL_SCRIPT 2>/dev/null && MYSQL_SETUP_SUCCESS=1 || true
+    
+    if [ $MYSQL_SETUP_SUCCESS -eq 1 ]; then
+        mysql -u root <<MYSQL_SCRIPT
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_ROOT_PASSWORD}';
+FLUSH PRIVILEGES;
+MYSQL_SCRIPT
+        if [ $? -eq 0 ]; then
+            echo "Пароль успешно установлен с пустым паролем"
+        else
+            MYSQL_SETUP_SUCCESS=0
+        fi
+    fi
+fi
+
+if [ $MYSQL_SETUP_SUCCESS -eq 0 ]; then
+    echo ""
+    echo "ВНИМАНИЕ: Не удалось автоматически установить пароль MySQL."
+    echo "Выполните вручную:"
+    echo "  sudo mysql"
+    echo "  ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_ROOT_PASSWORD}';"
+    echo "  FLUSH PRIVILEGES;"
+    echo "  EXIT;"
+    echo ""
+    echo "Или используйте скрипт: sudo bash fix-mysql.sh"
+    echo ""
+    read -p "Нажмите Enter после настройки MySQL..."
 fi
 
 echo ""
