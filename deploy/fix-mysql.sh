@@ -39,9 +39,7 @@ fi
 
 echo ""
 echo "Попытка 1: Подключение через sudo mysql (без пароля)..."
-sudo mysql <<MYSQL_SCRIPT 2>/dev/null && MYSQL_SUCCESS=1 || MYSQL_SUCCESS=0
-
-if [ $MYSQL_SUCCESS -eq 1 ]; then
+if sudo mysql -e "SELECT 1;" 2>/dev/null; then
     echo "Успешно подключились через sudo mysql"
     sudo mysql <<MYSQL_SCRIPT
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_ROOT_PASSWORD}';
@@ -59,9 +57,7 @@ else
     
     echo ""
     echo "Попытка 2: Подключение с пустым паролем..."
-    mysql -u root <<MYSQL_SCRIPT 2>/dev/null && MYSQL_SUCCESS=1 || MYSQL_SUCCESS=0
-    
-    if [ $MYSQL_SUCCESS -eq 1 ]; then
+    if mysql -u root -e "SELECT 1;" 2>/dev/null; then
         echo "Успешно подключились с пустым паролем"
         mysql -u root <<MYSQL_SCRIPT
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_ROOT_PASSWORD}';
