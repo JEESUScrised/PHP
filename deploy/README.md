@@ -8,7 +8,7 @@
 
 **Если не можете подключиться к MySQL, см. раздел "Решение проблем с подключением к MySQL" ниже.**
 
-#### Способ 1: Подключение через sudo (без пароля)
+#### Способ 1: Подключение через sudo (без пароля) - РЕКОМЕНДУЕТСЯ
 
 ```bash
 sudo mysql
@@ -21,10 +21,22 @@ DROP DATABASE IF EXISTS eshop;
 EXIT;
 ```
 
-#### Способ 2: Подключение с паролем
+**Если получаете ошибку "Can't connect to local MySQL server through socket", используйте TCP:**
 
 ```bash
-mysql -u root -p123qweasd
+sudo mysql -h 127.0.0.1
+```
+
+#### Способ 2: Подключение с паролем через TCP (если проблема с сокетом)
+
+```bash
+mysql -u root -p123qweasd -h 127.0.0.1
+```
+
+Или:
+
+```bash
+mysql -u root -p123qweasd --protocol=TCP
 ```
 
 В MySQL консоли выполните:
@@ -34,10 +46,16 @@ DROP DATABASE IF EXISTS eshop;
 EXIT;
 ```
 
-#### Способ 3: Подключение с запросом пароля
+#### Способ 3: Подключение с запросом пароля через TCP
 
 ```bash
-mysql -u root -p
+mysql -u root -p -h 127.0.0.1
+```
+
+Или:
+
+```bash
+mysql -u root -p --protocol=TCP
 ```
 
 Введите пароль при запросе (если пароль `123qweasd`, введите его).
@@ -122,6 +140,109 @@ sudo apt-get install mysql-client
 ```bash
 /usr/bin/mysql -u root -p123qweasd
 ```
+
+**Проблема 5: "Can't connect to local MySQL server through socket"**
+
+Эта ошибка означает, что MySQL не может найти сокет-файл. Решения:
+
+**Решение 1: Использовать TCP подключение вместо сокета**
+
+```bash
+mysql -u root -p123qweasd -h 127.0.0.1
+```
+
+Или:
+
+```bash
+mysql -u root -p123qweasd --protocol=TCP
+```
+
+**Решение 2: Найти и использовать правильный путь к сокету**
+
+Найдите где находится сокет-файл:
+
+```bash
+sudo find /var/run /tmp -name "mysql.sock" 2>/dev/null
+```
+
+Или проверьте конфигурацию:
+
+```bash
+sudo mysqld --verbose --help | grep socket
+```
+
+Затем подключитесь с указанием пути:
+
+```bash
+mysql -u root -p123qweasd --socket=/var/run/mysqld/mysqld.sock
+```
+
+Обычные пути к сокету:
+- `/var/run/mysqld/mysqld.sock` (Ubuntu/Debian)
+- `/tmp/mysql.sock` (старые версии)
+- `/var/lib/mysql/mysql.sock` (некоторые конфигурации)
+
+**Решение 3: Проверить что MySQL запущен**
+
+```bash
+sudo systemctl status mysql
+```
+
+Если не запущен:
+
+```bash
+sudo systemctl start mysql
+sudo systemctl enable mysql
+```
+
+**Решение 4: Создать символическую ссылку на сокет**
+
+Если сокет находится в другом месте, создайте ссылку:
+
+```bash
+sudo mkdir -p /var/run/mysqld
+sudo chown mysql:mysql /var/run/mysqld
+sudo ln -s /tmp/mysql.sock /var/run/mysqld/mysqld.sock
+```
+
+**Решение 5: Исправить конфигурацию MySQL**
+
+Отредактируйте конфигурацию:
+
+```bash
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+```
+
+Найдите секцию `[mysqld]` и добавьте/измените:
+
+```ini
+[mysqld]
+socket = /var/run/mysqld/mysqld.sock
+```
+
+Или в `/etc/my.cnf`:
+
+```ini
+[client]
+socket = /var/run/mysqld/mysqld.sock
+
+[mysqld]
+socket = /var/run/mysqld/mysqld.sock
+```
+
+Перезапустите MySQL:
+
+```bash
+sudo systemctl restart mysql
+```
+
+**Решение 6: Использовать sudo mysql (обходит проблему сокета)**
+
+```bash
+sudo mysql
+```
+
+Этот способ обычно работает даже при проблемах с сокетом.
 
 ### Шаг 2: Создание новой базы данных
 
