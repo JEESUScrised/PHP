@@ -12,6 +12,13 @@ set_include_path(get_include_path() . PATH_SEPARATOR . CORE_DIR . PATH_SEPARATOR
 spl_autoload_extensions('.class.php');
 spl_autoload_register();
 
+// Явная загрузка классов для надежности
+require_once __DIR__ . "/Eshop.class.php";
+require_once __DIR__ . "/Book.class.php";
+require_once __DIR__ . "/User.class.php";
+require_once __DIR__ . "/Order.class.php";
+require_once __DIR__ . "/Basket.class.php";
+
 const ERROR_LOG = ADMIN_DIR . 'error.log';
 const ERROR_MSG = 'Срочно обратитесь к администратору! admin@email.info';
 function errors_log($msg, $file, $line){
