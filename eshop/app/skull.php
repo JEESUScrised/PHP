@@ -10,25 +10,31 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     <title>Череп</title>
-    <link rel='stylesheet' href='/css/style.css'>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <style>
+        * {
+            margin: 0 !important;
+            padding: 0 !important;
+            box-sizing: border-box !important;
+        }
         html, body {
-            height: 100%;
-            margin: 0;
-            background: #000;
-            color: #fff;
-            overflow: hidden;
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #000000 !important;
+            color: #ffffff !important;
+            overflow: hidden !important;
+            font-family: monospace !important;
         }
         
         body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            padding-top: 120px;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            position: relative !important;
+            padding-top: 120px !important;
         }
         
         #back-button {
@@ -39,15 +45,16 @@
         }
         
         #trace {
-            width: 100%;
-            max-width: 75vw;
-            max-height: 85vh;
-            font-family: monospace;
-            margin: 0;
-            background: transparent;
-            color: #fff;
-            text-align: center;
-            overflow: hidden;
+            width: 100% !important;
+            max-width: 75vw !important;
+            max-height: 85vh !important;
+            font-family: monospace !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
+            color: #ffffff !important;
+            text-align: center !important;
+            overflow: hidden !important;
         }
         
         #trace-chars {
@@ -147,15 +154,15 @@
         }
         
         .grid-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            background: #000000;
-            opacity: 1;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            pointer-events: none !important;
+            z-index: -1 !important;
+            background: #000000 !important;
+            opacity: 1 !important;
         }
         
         .grid-pattern {
