@@ -6,23 +6,121 @@
 
 ### Шаг 1: Удаление старой базы данных
 
-Подключитесь к MySQL:
+**Если не можете подключиться к MySQL, см. раздел "Решение проблем с подключением к MySQL" ниже.**
+
+#### Способ 1: Подключение через sudo (без пароля)
 
 ```bash
 sudo mysql
 ```
 
-Или с паролем:
+В MySQL консоли выполните:
+
+```sql
+DROP DATABASE IF EXISTS eshop;
+EXIT;
+```
+
+#### Способ 2: Подключение с паролем
 
 ```bash
 mysql -u root -p123qweasd
 ```
 
-Удалите старую базу данных (если она существует):
+В MySQL консоли выполните:
 
 ```sql
 DROP DATABASE IF EXISTS eshop;
 EXIT;
+```
+
+#### Способ 3: Подключение с запросом пароля
+
+```bash
+mysql -u root -p
+```
+
+Введите пароль при запросе (если пароль `123qweasd`, введите его).
+
+В MySQL консоли выполните:
+
+```sql
+DROP DATABASE IF EXISTS eshop;
+EXIT;
+```
+
+#### Решение проблем с подключением к MySQL
+
+**Проблема 1: "Access denied for user 'root'@'localhost'"**
+
+Попробуйте подключиться через sudo:
+
+```bash
+sudo mysql
+```
+
+Если это не работает, сбросьте пароль root:
+
+```bash
+sudo systemctl stop mysql
+sudo mysqld_safe --skip-grant-tables &
+mysql -u root
+```
+
+В MySQL консоли:
+
+```sql
+USE mysql;
+UPDATE user SET authentication_string=PASSWORD('123qweasd') WHERE User='root';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+Затем перезапустите MySQL:
+
+```bash
+sudo pkill mysqld
+sudo systemctl start mysql
+```
+
+**Проблема 2: MySQL не запущен**
+
+Проверьте статус:
+
+```bash
+sudo systemctl status mysql
+```
+
+Запустите MySQL:
+
+```bash
+sudo systemctl start mysql
+sudo systemctl enable mysql
+```
+
+**Проблема 3: Не знаете пароль root**
+
+Попробуйте подключиться без пароля:
+
+```bash
+sudo mysql
+```
+
+Или сбросьте пароль (см. Проблема 1).
+
+**Проблема 4: "Command 'mysql' not found"**
+
+Установите MySQL клиент:
+
+```bash
+sudo apt-get update
+sudo apt-get install mysql-client
+```
+
+Или используйте полный путь:
+
+```bash
+/usr/bin/mysql -u root -p123qweasd
 ```
 
 ### Шаг 2: Создание новой базы данных
@@ -224,19 +322,73 @@ ls -la /var/www/eshop
 
 ### Ошибка подключения к БД
 
-1. Проверьте, что MySQL запущен:
+1. **Проверьте, что MySQL запущен:**
 ```bash
 sudo systemctl status mysql
 ```
 
-2. Проверьте пароль в конфигурации:
+Если не запущен:
+```bash
+sudo systemctl start mysql
+sudo systemctl enable mysql
+```
+
+2. **Проверьте пароль в конфигурации:**
 ```bash
 grep "PASS" /var/www/eshop/core/init.php
 ```
 
-3. Проверьте подключение вручную:
+3. **Попробуйте подключиться разными способами:**
+
+Через sudo (без пароля):
+```bash
+sudo mysql
+```
+
+С паролем:
 ```bash
 mysql -u root -p123qweasd eshop
+```
+
+С запросом пароля:
+```bash
+mysql -u root -p
+```
+
+4. **Если ничего не помогает, сбросьте пароль root:**
+
+Остановите MySQL:
+```bash
+sudo systemctl stop mysql
+```
+
+Запустите в безопасном режиме:
+```bash
+sudo mysqld_safe --skip-grant-tables &
+```
+
+Подключитесь:
+```bash
+mysql -u root
+```
+
+В MySQL консоли:
+```sql
+USE mysql;
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '123qweasd';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+Остановите безопасный режим и запустите MySQL нормально:
+```bash
+sudo pkill mysqld
+sudo systemctl start mysql
+```
+
+Теперь попробуйте подключиться:
+```bash
+mysql -u root -p123qweasd
 ```
 
 ### Ошибка 403 Forbidden
