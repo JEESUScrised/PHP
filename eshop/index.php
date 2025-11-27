@@ -6,22 +6,30 @@ ob_start();
 
 // Сначала проверяем специальный маршрут /skull - он не требует init.php
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-if (rtrim($path, '/') === '/skull') {
-    ob_end_clean();
-    // Отключаем все обработчики ошибок для этой страницы
-    ini_set('display_errors', 0);
-    error_reporting(0);
-    // Отключаем глобальные обработчики ошибок
-    restore_error_handler();
-    restore_exception_handler();
-    header('Content-Type: text/html; charset=utf-8');
-    header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
-    header('Pragma: no-cache');
-    header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
-    header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-    header('ETag: "' . md5(time()) . '"');
-    require_once 'app/skull.php';
-    exit;
+$normalizedPath = rtrim($path, '/');
+if ($normalizedPath === '/skull' || $normalizedPath === '') {
+    // Проверяем что это именно /skull, а не корень
+    if ($normalizedPath === '/skull' || (isset($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/skull') !== false)) {
+        ob_end_clean();
+        // Отключаем все обработчики ошибок для этой страницы
+        ini_set('display_errors', 0);
+        error_reporting(0);
+        // Отключаем глобальные обработчики ошибок
+        if (function_exists('restore_error_handler')) {
+            restore_error_handler();
+        }
+        if (function_exists('restore_exception_handler')) {
+            restore_exception_handler();
+        }
+        header('Content-Type: text/html; charset=utf-8');
+        header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: Thu, 01 Jan 1970 00:00:00 GMT');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+        header('ETag: "' . md5(time()) . '"');
+        require_once 'app/skull.php';
+        exit;
+    }
 }
 
 require_once 'core/init.php';
