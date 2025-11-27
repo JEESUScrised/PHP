@@ -332,16 +332,39 @@ MYSQL_ROOT_PASSWORD="ваш_пароль"
 
 ## Настройка Apache и домена
 
-### 1. Установка Apache и PHP (если еще не установлены)
+### Автоматическая настройка (рекомендуется)
+
+Используйте скрипт для автоматической настройки Apache:
+
+```bash
+cd /tmp
+git clone https://github.com/JEESUScrised/PHP.git -b kt3 kt3
+cd kt3/deploy
+chmod +x setup-apache.sh
+sudo bash setup-apache.sh
+```
+
+Скрипт запросит доменное имя (или используйте localhost для тестирования) и автоматически:
+- Установит Apache и PHP (если нужно)
+- Включит необходимые модули (rewrite, headers)
+- Создаст конфигурацию виртуального хоста
+- Активирует сайт
+- Отключит дефолтный сайт
+- Перезапустит Apache
+
+### Ручная настройка
+
+#### 1. Установка Apache и PHP (если еще не установлены)
 
 ```bash
 sudo apt-get update
-sudo apt-get install -y apache2 php php-mysql php-mbstring php-xml
+sudo apt-get install -y apache2 php php-mysql php-mbstring php-xml libapache2-mod-php
 sudo a2enmod rewrite
+sudo a2enmod headers
 sudo systemctl restart apache2
 ```
 
-### 2. Настройка виртуального хоста
+#### 2. Настройка виртуального хоста
 
 Создайте конфигурацию:
 
@@ -374,6 +397,7 @@ sudo nano /etc/apache2/sites-available/eshop.conf
 ```bash
 sudo a2ensite eshop.conf
 sudo a2dissite 000-default.conf
+sudo apache2ctl configtest
 sudo systemctl reload apache2
 ```
 
