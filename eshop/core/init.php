@@ -13,6 +13,7 @@ spl_autoload_extensions('.class.php');
 spl_autoload_register();
 
 // Явная загрузка классов для надежности
+require_once __DIR__ . "/Cleaner.class.php";
 require_once __DIR__ . "/Eshop.class.php";
 require_once __DIR__ . "/Book.class.php";
 require_once __DIR__ . "/User.class.php";
