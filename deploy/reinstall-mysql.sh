@@ -75,17 +75,19 @@ echo ""
 echo "Шаг 8: Настройка пароля root и аутентификации..."
 sleep 3
 
-mysql -u root -p${MYSQL_ROOT_PASSWORD} <<MYSQL_SCRIPT 2>/dev/null || {
+if mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "SELECT 1;" 2>/dev/null; then
+    echo "Подключение с паролем успешно, настраиваем аутентификацию..."
+    mysql -u root -p${MYSQL_ROOT_PASSWORD} <<MYSQL_SCRIPT
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_ROOT_PASSWORD}';
+FLUSH PRIVILEGES;
+MYSQL_SCRIPT
+else
     echo "Попытка подключения через sudo..."
     sudo mysql <<MYSQL_SCRIPT
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_ROOT_PASSWORD}';
 FLUSH PRIVILEGES;
 MYSQL_SCRIPT
-}
-
-ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '${MYSQL_ROOT_PASSWORD}';
-FLUSH PRIVILEGES;
-MYSQL_SCRIPT
+fi
 
 echo ""
 echo "Шаг 9: Проверка подключения..."
