@@ -50,9 +50,6 @@ switch (rtrim($path, '/')):
     case '/login':
         require_once 'login.php';
         break;
-    case '/skull':
-        require_once 'skull.php';
-        break;
     default:
         require_once '404.php';
 endswitch;
