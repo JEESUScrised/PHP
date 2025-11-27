@@ -4,7 +4,13 @@
  * Запускается автоматически при первом запуске или вручную
  */
 
-require_once 'eshop/core/init.php';
+// Определяем правильный путь к init.php
+$initPath = __DIR__ . '/core/init.php';
+if (!file_exists($initPath)) {
+    // Если не найден, пробуем путь из корня проекта
+    $initPath = __DIR__ . '/eshop/core/init.php';
+}
+require_once $initPath;
 
 // Инициализация БД
 Eshop::init(DB);
