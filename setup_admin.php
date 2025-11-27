@@ -6,6 +6,9 @@
 
 require_once 'eshop/core/init.php';
 
+// Инициализация БД
+Eshop::init(DB);
+
 try {
     // Проверяем, есть ли уже администратор
     $testUser = new User('admin', '');
@@ -18,8 +21,7 @@ try {
     }
     
     // Создаем администратора
-    $admin = new User('admin', 'admin123');
-    $admin->email = 'admin@email.info';
+    $admin = new User('admin', 'admin123', 'admin@email.info');
     
     Eshop::userAdd($admin);
     
