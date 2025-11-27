@@ -268,11 +268,11 @@
         // Пробуем разные варианты путей
         $projectRoot = dirname(dirname(__DIR__)); // Корень проекта (kt3/)
         $possiblePaths = [
-            $projectRoot . DIRECTORY_SEPARATOR . 'skull' . DIRECTORY_SEPARATOR . 'frames.js',
             $baseDir . DIRECTORY_SEPARATOR . 'skull' . DIRECTORY_SEPARATOR . 'frames.js',
-            $baseDir . DIRECTORY_SEPARATOR . 'skull-data' . DIRECTORY_SEPARATOR . 'frames.js',
+            $projectRoot . DIRECTORY_SEPARATOR . 'skull' . DIRECTORY_SEPARATOR . 'frames.js',
             __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'skull' . DIRECTORY_SEPARATOR . 'frames.js',
-            __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'skull-data' . DIRECTORY_SEPARATOR . 'frames.js',
+            '/var/www/eshop/skull/frames.js',
+            '/var/www/eshop/skull-data/frames.js',
         ];
         
         $framesFile = null;

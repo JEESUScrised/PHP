@@ -54,9 +54,17 @@ echo "Копирование файлов..."
 cp -r ${TEMP_DIR}/eshop/* ${PROJECT_DIR}/
 if [ -d "${TEMP_DIR}/skull" ]; then
     cp -r ${TEMP_DIR}/skull ${PROJECT_DIR}/ 2>/dev/null || true
+    echo "✓ Папка skull скопирована"
 fi
 if [ -f "${TEMP_DIR}/setup_admin.php" ]; then
     cp ${TEMP_DIR}/setup_admin.php ${PROJECT_DIR}/ 2>/dev/null || true
+fi
+
+# Проверка что frames.js скопирован
+if [ -f "${PROJECT_DIR}/skull/frames.js" ]; then
+    echo "✓ frames.js найден в ${PROJECT_DIR}/skull/"
+else
+    echo "⚠ frames.js не найден! Проверьте путь: ${PROJECT_DIR}/skull/frames.js"
 fi
 
 echo ""
