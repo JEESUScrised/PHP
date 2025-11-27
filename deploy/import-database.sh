@@ -45,10 +45,12 @@ fi
 echo ""
 echo "2. Проверка подключения к MySQL..."
 echo "-----------------------------------"
+MYSQL_CMD=""
 if mysql -u root -p${MYSQL_ROOT_PASSWORD} -e "SELECT 1;" 2>/dev/null; then
     echo "✓ Подключение к MySQL работает"
+    MYSQL_CMD="mysql -u root -p${MYSQL_ROOT_PASSWORD}"
 else
-    echo "✗ Не удалось подключиться к MySQL"
+    echo "⚠ Не удалось подключиться с паролем"
     echo "Попытка через sudo..."
     if sudo mysql -e "SELECT 1;" 2>/dev/null; then
         echo "✓ Подключение через sudo работает"
@@ -57,8 +59,6 @@ else
         echo "✗ Не удалось подключиться к MySQL"
         exit 1
     fi
-else
-    MYSQL_CMD="mysql -u root -p${MYSQL_ROOT_PASSWORD}"
 fi
 
 echo ""
