@@ -145,6 +145,98 @@
                 text-shadow: 0 0 20px rgba(74, 144, 226, 1), 0 0 30px rgba(74, 144, 226, 0.8);
             }
         }
+        
+        .grid-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            background: #000000;
+            opacity: 1;
+        }
+        
+        .grid-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            filter: blur(0.5px);
+        }
+        
+        .grid-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite reverse;
+            filter: blur(1px);
+            opacity: 0.6;
+        }
+        
+        @keyframes gridMove {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(50px, 50px);
+            }
+        }
+        
+        .grid-shimmer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.03) 0%, transparent 30%),
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.02) 0%, transparent 30%);
+            animation: shimmerMove 15s ease-in-out infinite;
+        }
+        
+        @keyframes shimmerMove {
+            0%, 100% {
+                transform: translate(0, 0);
+                opacity: 0.5;
+            }
+            50% {
+                transform: translate(10%, -10%);
+                opacity: 0.8;
+            }
+        }
+        
+        .link-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 20px;
+            background: var(--bg-secondary, #1a1a1a);
+            border: 1px solid var(--border-color, #333333);
+            border-radius: 4px;
+            color: var(--text-primary, #e0e0e0);
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-weight: 400;
+        }
+        
+        .link-button:hover {
+            background: var(--bg-hover, #2a2a2a);
+            border-color: var(--accent-color, #4a90e2);
+            color: var(--text-primary, #e0e0e0);
+        }
     </style>
 </head>
 <body>
