@@ -4,7 +4,7 @@
 
 **Перед запуском скрипта развертывания необходимо вручную создать и настроить базу данных!**
 
-### Шаг 1: Создание базы данных
+### Шаг 1: Удаление старой базы данных
 
 Подключитесь к MySQL:
 
@@ -18,19 +18,29 @@ sudo mysql
 mysql -u root -p123qweasd
 ```
 
-Создайте базу данных и пользователя:
+Удалите старую базу данных (если она существует):
 
 ```sql
-CREATE DATABASE eshop CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- Если нужно создать отдельного пользователя (опционально)
-CREATE USER 'eshop_user'@'localhost' IDENTIFIED BY 'ваш_пароль';
-GRANT ALL PRIVILEGES ON eshop.* TO 'eshop_user'@'localhost';
-FLUSH PRIVILEGES;
+DROP DATABASE IF EXISTS eshop;
 EXIT;
 ```
 
-### Шаг 2: Импорт структуры базы данных
+### Шаг 2: Создание новой базы данных
+
+Подключитесь к MySQL снова:
+
+```bash
+mysql -u root -p123qweasd
+```
+
+Создайте новую базу данных:
+
+```sql
+CREATE DATABASE eshop CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+EXIT;
+```
+
+### Шаг 3: Импорт структуры базы данных
 
 После клонирования проекта импортируйте структуру:
 
