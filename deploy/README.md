@@ -334,12 +334,19 @@ MYSQL_ROOT_PASSWORD="ваш_пароль"
 
 ### Автоматическая настройка (рекомендуется)
 
-Используйте скрипт для автоматической настройки Apache:
+**ВАЖНО: Сначала разверните проект, затем настройте Apache!**
 
+1. **Разверните проект:**
 ```bash
 cd /tmp
 git clone https://github.com/JEESUScrised/PHP.git -b kt3 kt3
 cd kt3/deploy
+chmod +x deploy.sh
+sudo bash deploy.sh
+```
+
+2. **Настройте Apache:**
+```bash
 chmod +x setup-apache.sh
 sudo bash setup-apache.sh
 ```
@@ -351,6 +358,23 @@ sudo bash setup-apache.sh
 - Активирует сайт
 - Отключит дефолтный сайт
 - Перезапустит Apache
+
+### Диагностика проблем
+
+Если после настройки все еще видна стандартная страница Apache:
+
+```bash
+cd /tmp/kt3/deploy
+chmod +x check-apache.sh
+sudo bash check-apache.sh
+```
+
+Скрипт покажет:
+- Какие сайты активны
+- Существует ли конфигурация eshop
+- Развернут ли проект
+- Статус Apache
+- Ошибки в логах
 
 ### Ручная настройка
 

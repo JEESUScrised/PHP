@@ -66,8 +66,8 @@ EOF
 
 echo ""
 echo "Активация сайта..."
-a2ensite eshop.conf
-a2dissite 000-default.conf 2>/dev/null || true
+a2ensite eshop.conf 2>/dev/null || echo "Сайт уже активирован"
+a2dissite 000-default.conf 2>/dev/null || echo "Дефолтный сайт уже отключен или не существует"
 
 echo ""
 echo "Проверка конфигурации Apache..."
@@ -75,9 +75,25 @@ apache2ctl configtest
 
 if [ $? -eq 0 ]; then
     echo ""
+    echo "Проверка активных сайтов..."
+    echo "Активные сайты:"
+    ls -la /etc/apache2/sites-enabled/
+    
+    echo ""
     echo "Перезапуск Apache..."
     systemctl restart apache2
     systemctl enable apache2
+    
+    echo ""
+    echo "Проверка что проект развернут..."
+    if [ ! -d "$PROJECT_DIR" ] || [ ! -f "$PROJECT_DIR/index.php" ]; then
+        echo ""
+        echo "⚠ ВНИМАНИЕ: Проект не развернут в $PROJECT_DIR"
+        echo "Запустите скрипт развертывания:"
+        echo "  cd /tmp/kt3/deploy && sudo bash deploy.sh"
+    else
+        echo "✓ Проект найден в $PROJECT_DIR"
+    fi
     
     echo ""
     echo "=========================================="
