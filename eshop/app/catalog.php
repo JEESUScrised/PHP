@@ -5,7 +5,6 @@
             <a href="/basket" class="link-button">Корзина</a>
         </div>
         <div>
-            <a href="/skull" class="glitch-button"><span class="glitch-text">№@*^&$|?</span></a>
             <?php if (Eshop::isAdmin()): ?>
                 <a href="/admin" class="link-button">Админка</a>
             <?php else: ?>
