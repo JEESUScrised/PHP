@@ -23,8 +23,17 @@ echo "$ACTIVE_SITES"
 if echo "$ACTIVE_SITES" | grep -q "000-default"; then
     echo ""
     echo "⚠ Дефолтный сайт активен! Отключаю..."
-    a2dissite 000-default.conf
+    a2dissite 000-default.conf 2>/dev/null || true
+    a2dissite 000-default-le-ssl.conf 2>/dev/null || true
     echo "✓ Дефолтный сайт отключен"
+fi
+
+# Отключаем SSL версию дефолтного сайта если активна
+if echo "$ACTIVE_SITES" | grep -q "000-default-le-ssl"; then
+    echo ""
+    echo "⚠ SSL версия дефолтного сайта активна! Отключаю..."
+    a2dissite 000-default-le-ssl.conf 2>/dev/null || true
+    echo "✓ SSL дефолтный сайт отключен"
 fi
 
 echo ""
@@ -95,13 +104,19 @@ else
 fi
 
 echo ""
-echo "6. Перезапуск Apache..."
+echo "6. Отключение всех дефолтных сайтов..."
+echo "-----------------------------------"
+a2dissite 000-default.conf 2>/dev/null || echo "000-default.conf уже отключен"
+a2dissite 000-default-le-ssl.conf 2>/dev/null || echo "000-default-le-ssl.conf уже отключен"
+
+echo ""
+echo "7. Перезапуск Apache..."
 echo "-----------------------------------"
 systemctl restart apache2
 sleep 2
 
 echo ""
-echo "7. Проверка статуса Apache..."
+echo "8. Проверка статуса Apache..."
 echo "-----------------------------------"
 if systemctl is-active --quiet apache2; then
     echo "✓ Apache запущен"
@@ -111,9 +126,35 @@ else
 fi
 
 echo ""
-echo "8. Проверка последних ошибок..."
+echo "9. Проверка последних ошибок..."
 echo "-----------------------------------"
 tail -10 /var/log/apache2/error.log 2>/dev/null | grep -v "^$" || echo "Ошибок не найдено"
+
+echo ""
+echo "10. Проверка активных сайтов после исправления..."
+echo "-----------------------------------"
+FINAL_SITES=$(ls -la /etc/apache2/sites-enabled/ 2>/dev/null | grep -v "^total" | awk '{print $9}' | grep -v "^$" | grep -v "^\.$" | grep -v "^\.\.$")
+echo "Активные сайты:"
+echo "$FINAL_SITES"
+
+echo ""
+echo "11. Тест ответа сервера..."
+echo "-----------------------------------"
+TEST_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost 2>/dev/null || echo "000")
+echo "HTTP код ответа: $TEST_RESPONSE"
+
+if [ "$TEST_RESPONSE" = "200" ]; then
+    echo "✓ Сервер отвечает"
+    # Проверяем содержимое
+    if curl -s http://localhost | grep -q "It works"; then
+        echo "⚠ ВНИМАНИЕ: Сервер возвращает стандартную страницу Apache!"
+        echo "Проверяю конфигурацию..."
+    else
+        echo "✓ Сервер возвращает не стандартную страницу"
+    fi
+else
+    echo "⚠ Проблема с подключением (код: $TEST_RESPONSE)"
+fi
 
 echo ""
 echo "=========================================="
@@ -123,6 +164,17 @@ echo "=========================================="
 if [ -f "$PROJECT_DIR/index.php" ] && [ -L "/etc/apache2/sites-enabled/eshop.conf" ]; then
     echo "✓ Проект развернут"
     echo "✓ Apache настроен"
+    
+    if echo "$FINAL_SITES" | grep -q "000-default"; then
+        echo "⚠ ВНИМАНИЕ: Дефолтный сайт все еще активен!"
+        echo "Выполните вручную:"
+        echo "  sudo a2dissite 000-default.conf"
+        echo "  sudo a2dissite 000-default-le-ssl.conf"
+        echo "  sudo systemctl restart apache2"
+    else
+        echo "✓ Дефолтные сайты отключены"
+    fi
+    
     echo ""
     echo "Сайт должен быть доступен по адресу:"
     echo "  http://149.33.4.37"
@@ -132,6 +184,7 @@ if [ -f "$PROJECT_DIR/index.php" ] && [ -L "/etc/apache2/sites-enabled/eshop.con
     echo "  1. Очистите кэш браузера (Ctrl+F5)"
     echo "  2. Попробуйте в режиме инкогнито"
     echo "  3. Проверьте: curl http://localhost"
+    echo "  4. Проверьте логи: tail -f /var/log/apache2/eshop_error.log"
 else
     echo "⚠ Проект не развернут или Apache не настроен"
     echo ""
