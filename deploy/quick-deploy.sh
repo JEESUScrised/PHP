@@ -21,15 +21,20 @@ fi
 
 echo ""
 echo "Клонирование проекта из GitHub..."
+TEMP_DIR="/tmp/kt3_deploy_$$"
 cd /tmp
-rm -rf kt3
-git clone https://github.com/JEESUScrised/PHP.git -b kt3 kt3
+rm -rf ${TEMP_DIR}
+git clone https://github.com/JEESUScrised/PHP.git -b kt3 ${TEMP_DIR}
 
 echo ""
 echo "Копирование файлов..."
-cp -r kt3/eshop/* ${PROJECT_DIR}/
-cp -r kt3/skull ${PROJECT_DIR}/ 2>/dev/null || true
-cp kt3/setup_admin.php ${PROJECT_DIR}/ 2>/dev/null || true
+cp -r ${TEMP_DIR}/eshop/* ${PROJECT_DIR}/
+if [ -d "${TEMP_DIR}/skull" ]; then
+    cp -r ${TEMP_DIR}/skull ${PROJECT_DIR}/ 2>/dev/null || true
+fi
+if [ -f "${TEMP_DIR}/setup_admin.php" ]; then
+    cp ${TEMP_DIR}/setup_admin.php ${PROJECT_DIR}/ 2>/dev/null || true
+fi
 
 if [ ! -f "${PROJECT_DIR}/.htaccess" ]; then
     echo "Создание .htaccess..."
@@ -68,7 +73,7 @@ chmod 644 ${PROJECT_DIR}/index.php
 
 echo ""
 echo "Очистка временных файлов..."
-rm -rf /tmp/kt3
+rm -rf ${TEMP_DIR}
 
 echo ""
 echo "Перезапуск Apache..."
