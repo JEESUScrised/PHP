@@ -6,20 +6,34 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    <meta http-equiv="Last-Modified" content="<?php echo gmdate('D, d M Y H:i:s') . ' GMT'; ?>">
+    <meta http-equiv="ETag" content="<?php echo md5(time()); ?>">
     <title>Череп</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
-    <style>
+    <style type="text/css">
+        /* Принудительный сброс всех стилей */
         * {
             margin: 0 !important;
             padding: 0 !important;
             box-sizing: border-box !important;
         }
-        html, body {
+        
+        html {
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #000000 !important;
+            color: #ffffff !important;
+            overflow: hidden !important;
+            font-family: monospace !important;
+        }
+        
+        body {
             height: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
