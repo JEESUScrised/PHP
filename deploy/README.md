@@ -476,7 +476,39 @@ mysql -u root -p123qweasd eshop
 mysql -u root -p
 ```
 
-4. **Если ничего не помогает, сбросьте пароль root:**
+4. **Если получаете ошибку "Can't connect to local MySQL server through socket":**
+
+Используйте TCP подключение вместо сокета:
+
+```bash
+mysql -u root -p123qweasd -h 127.0.0.1
+```
+
+Или:
+
+```bash
+mysql -u root -p123qweasd --protocol=TCP
+```
+
+Или через sudo:
+
+```bash
+sudo mysql -h 127.0.0.1
+```
+
+Найдите где находится сокет-файл:
+
+```bash
+sudo find /var/run /tmp -name "mysql.sock" 2>/dev/null
+```
+
+И подключитесь с указанием пути:
+
+```bash
+mysql -u root -p123qweasd --socket=/var/run/mysqld/mysqld.sock
+```
+
+5. **Если ничего не помогает, сбросьте пароль root:**
 
 Остановите MySQL:
 ```bash
@@ -488,9 +520,9 @@ sudo systemctl stop mysql
 sudo mysqld_safe --skip-grant-tables &
 ```
 
-Подключитесь:
+Подключитесь через TCP:
 ```bash
-mysql -u root
+mysql -u root -h 127.0.0.1
 ```
 
 В MySQL консоли:
@@ -507,9 +539,9 @@ sudo pkill mysqld
 sudo systemctl start mysql
 ```
 
-Теперь попробуйте подключиться:
+Теперь попробуйте подключиться через TCP:
 ```bash
-mysql -u root -p123qweasd
+mysql -u root -p123qweasd -h 127.0.0.1
 ```
 
 ### Ошибка 403 Forbidden
