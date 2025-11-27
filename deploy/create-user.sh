@@ -26,7 +26,14 @@ chown www-data:www-data ${PROJECT_DIR}/create_user.php ${PROJECT_DIR}/setup_admi
 chmod 644 ${PROJECT_DIR}/create_user.php ${PROJECT_DIR}/setup_admin.php
 
 echo ""
-echo "2. Создание администратора (если не существует)..."
+echo "2. Проверка структуры проекта..."
+if [ ! -d "${PROJECT_DIR}/core" ]; then
+    echo "⚠ Директория core не найдена! Убедитесь, что проект развернут."
+    exit 1
+fi
+
+echo ""
+echo "3. Создание администратора (если не существует)..."
 cd ${PROJECT_DIR}
 php setup_admin.php
 
