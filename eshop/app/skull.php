@@ -223,19 +223,19 @@
             display: inline-flex;
             align-items: center;
             padding: 8px 20px;
-            background: var(--bg-secondary, #1a1a1a);
-            border: 1px solid var(--border-color, #333333);
+            background: #1a1a1a;
+            border: 1px solid #333333;
             border-radius: 4px;
-            color: var(--text-primary, #e0e0e0);
+            color: #e0e0e0;
             text-decoration: none;
             transition: all 0.2s ease;
             font-weight: 400;
         }
         
         .link-button:hover {
-            background: var(--bg-hover, #2a2a2a);
-            border-color: var(--accent-color, #4a90e2);
-            color: var(--text-primary, #e0e0e0);
+            background: #2a2a2a;
+            border-color: #4a90e2;
+            color: #e0e0e0;
         }
     </style>
 </head>
