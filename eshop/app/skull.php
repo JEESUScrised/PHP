@@ -38,10 +38,10 @@
         }
         
         #back-button {
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            z-index: 1000;
+            position: fixed !important;
+            top: 20px !important;
+            left: 20px !important;
+            z-index: 1000 !important;
         }
         
         #trace {
@@ -58,7 +58,8 @@
         }
         
         #trace-chars {
-            white-space: pre;
+            white-space: pre !important;
+            color: #ffffff !important;
         }
         
         .animated-title {
@@ -166,32 +167,32 @@
         }
         
         .grid-pattern {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
             background-image: 
                 linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridMove 20s linear infinite;
-            filter: blur(0.5px);
+                linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px) !important;
+            background-size: 50px 50px !important;
+            animation: gridMove 20s linear infinite !important;
+            filter: blur(0.5px) !important;
         }
         
         .grid-glow {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
             background-image: 
                 linear-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.15) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: gridMove 20s linear infinite reverse;
-            filter: blur(1px);
-            opacity: 0.6;
+                linear-gradient(90deg, rgba(255, 255, 255, 0.15) 1px, transparent 1px) !important;
+            background-size: 50px 50px !important;
+            animation: gridMove 20s linear infinite reverse !important;
+            filter: blur(1px) !important;
+            opacity: 0.6 !important;
         }
         
         @keyframes gridMove {
@@ -204,15 +205,15 @@
         }
         
         .grid-shimmer {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
             background: 
                 radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.03) 0%, transparent 30%),
-                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.02) 0%, transparent 30%);
-            animation: shimmerMove 15s ease-in-out infinite;
+                radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.02) 0%, transparent 30%) !important;
+            animation: shimmerMove 15s ease-in-out infinite !important;
         }
         
         @keyframes shimmerMove {
