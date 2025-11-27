@@ -1,65 +1,162 @@
 # Развертывание проекта на Ubuntu Server
 
-## Быстрый старт
+## Важно: Настройка базы данных
 
-### 1. Подготовка
+**Перед запуском скрипта развертывания необходимо вручную создать и настроить базу данных!**
 
-Подключитесь к вашему Ubuntu серверу через VNC или SSH.
+### Шаг 1: Создание базы данных
 
-### 2. Копирование файлов на сервер
-
-Скопируйте папку `deploy` на сервер:
+Подключитесь к MySQL:
 
 ```bash
-# С вашего компьютера
-scp -r deploy/ user@your-server-ip:/tmp/
+sudo mysql
 ```
 
-Или клонируйте репозиторий на сервере:
+Или с паролем:
+
+```bash
+mysql -u root -p123qweasd
+```
+
+Создайте базу данных и пользователя:
+
+```sql
+CREATE DATABASE eshop CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- Если нужно создать отдельного пользователя (опционально)
+CREATE USER 'eshop_user'@'localhost' IDENTIFIED BY 'ваш_пароль';
+GRANT ALL PRIVILEGES ON eshop.* TO 'eshop_user'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+```
+
+### Шаг 2: Импорт структуры базы данных
+
+После клонирования проекта импортируйте структуру:
 
 ```bash
 cd /tmp
 git clone https://github.com/JEESUScrised/PHP.git -b kt3 kt3
-cp -r kt3/deploy /tmp/
+mysql -u root -p123qweasd eshop < kt3/eshop/core/eshop.sql
 ```
 
-### 3. Установка
+## Развертывание проекта
 
-Выполните скрипт установки:
+### Быстрый старт
+
+1. **Клонируйте репозиторий на сервере:**
 
 ```bash
-cd /tmp/deploy
-chmod +x install.sh
-sudo bash install.sh
+cd /tmp
+git clone https://github.com/JEESUScrised/PHP.git -b kt3 kt3
+cd kt3/deploy
 ```
 
-Скрипт запросит:
-- Доменное имя (например: `example.com`)
-- Пароль для MySQL root (или нажмите Enter для автоматической генерации)
-
-### 4. Настройка DNS
-
-В панели управления вашего доменного регистратора добавьте DNS записи:
-
-- **A запись**: `@` → IP адрес вашего сервера
-- **A запись**: `www` → IP адрес вашего сервера
-
-Подождите 5-30 минут для распространения DNS.
-
-### 5. Настройка SSL (HTTPS)
-
-После настройки DNS выполните:
+2. **Запустите скрипт развертывания:**
 
 ```bash
+chmod +x deploy.sh
+sudo bash deploy.sh
+```
+
+Скрипт:
+- Создаст резервную копию (если проект уже установлен)
+- Склонирует проект из GitHub
+- Скопирует файлы в `/var/www/eshop`
+- Настроит конфигурацию БД (пароль: `123qweasd`)
+- Настроит права доступа
+- Создаст администратора (если его нет)
+- Перезапустит Apache
+
+### Изменение пароля БД
+
+Если используется другой пароль MySQL, отредактируйте скрипт:
+
+```bash
+nano deploy.sh
+```
+
+Измените строку:
+```bash
+MYSQL_ROOT_PASSWORD="ваш_пароль"
+```
+
+## Настройка Apache и домена
+
+### 1. Установка Apache и PHP (если еще не установлены)
+
+```bash
+sudo apt-get update
+sudo apt-get install -y apache2 php php-mysql php-mbstring php-xml
+sudo a2enmod rewrite
+sudo systemctl restart apache2
+```
+
+### 2. Настройка виртуального хоста
+
+Создайте конфигурацию:
+
+```bash
+sudo nano /etc/apache2/sites-available/eshop.conf
+```
+
+Добавьте:
+
+```apache
+<VirtualHost *:80>
+    ServerName ваш-домен.com
+    ServerAlias www.ваш-домен.com
+    
+    DocumentRoot /var/www/eshop
+    
+    <Directory /var/www/eshop>
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+    
+    ErrorLog ${APACHE_LOG_DIR}/eshop_error.log
+    CustomLog ${APACHE_LOG_DIR}/eshop_access.log combined
+</VirtualHost>
+```
+
+Активируйте сайт:
+
+```bash
+sudo a2ensite eshop.conf
+sudo a2dissite 000-default.conf
+sudo systemctl reload apache2
+```
+
+### 3. Настройка DNS
+
+В панели управления домена добавьте:
+- **A запись**: `@` → IP адрес сервера
+- **A запись**: `www` → IP адрес сервера
+
+### 4. Настройка SSL (HTTPS)
+
+После настройки DNS:
+
+```bash
+sudo apt-get install -y certbot python3-certbot-apache
 sudo certbot --apache -d ваш-домен.com -d www.ваш-домен.com
 ```
 
-### 6. Создание администратора
+## Обновление проекта
+
+Для обновления проекта просто запустите скрипт снова:
 
 ```bash
-cd /var/www/eshop
-sudo php setup_admin.php
+cd /tmp/kt3/deploy
+sudo bash deploy.sh
 ```
+
+Скрипт создаст резервную копию и обновит файлы.
+
+## Создание администратора
+
+Администратор создается автоматически при первом развертывании.
 
 По умолчанию:
 - **Логин**: `admin`
@@ -67,30 +164,30 @@ sudo php setup_admin.php
 
 **ВАЖНО**: Смените пароль после первого входа!
 
-## Обновление проекта
-
-Для обновления проекта используйте:
+Для создания администратора вручную:
 
 ```bash
-cd /tmp/deploy
-chmod +x quick-deploy.sh
-sudo bash quick-deploy.sh
+cd /var/www/eshop
+sudo php setup_admin.php
 ```
 
-## Структура файлов
+## Проверка работы
 
-- `install.sh` - Полная установка сервера и проекта
-- `deploy.sh` - Развертывание с резервным копированием
-- `quick-deploy.sh` - Быстрое обновление проекта
-- `DEPLOY.md` - Подробная инструкция
-- `.htaccess` - Конфигурация Apache для роутинга
+1. **Проверьте подключение к БД:**
+```bash
+mysql -u root -p123qweasd eshop -e "SHOW TABLES;"
+```
+
+2. **Проверьте конфигурацию:**
+```bash
+grep "PASS" /var/www/eshop/core/init.php
+```
+
+3. **Откройте сайт в браузере:**
+- Главная: `http://ваш-домен.com`
+- Админ-панель: `http://ваш-домен.com/enter`
 
 ## Полезные команды
-
-### Проверка статуса Apache
-```bash
-sudo systemctl status apache2
-```
 
 ### Просмотр логов
 ```bash
@@ -103,68 +200,46 @@ sudo tail -f /var/www/eshop/app/admin/error.log
 sudo systemctl restart apache2
 ```
 
-### Проверка SSL сертификата
+### Проверка статуса сервисов
 ```bash
-sudo certbot certificates
+sudo systemctl status apache2 mysql
+```
+
+### Проверка прав доступа
+```bash
+ls -la /var/www/eshop
 ```
 
 ## Устранение проблем
 
-### Ошибка MySQL: Access denied for user "root@localhost"
+### Ошибка подключения к БД
 
-Если при установке возникает ошибка доступа к MySQL:
-
-**Вариант 1: Использовать скрипт настройки MySQL**
+1. Проверьте, что MySQL запущен:
 ```bash
-cd /tmp/deploy
-chmod +x setup-mysql.sh
-sudo bash setup-mysql.sh
+sudo systemctl status mysql
 ```
 
-**Вариант 2: Настроить вручную**
+2. Проверьте пароль в конфигурации:
 ```bash
-sudo mysql
+grep "PASS" /var/www/eshop/core/init.php
 ```
 
-В MySQL консоли выполните:
-```sql
-ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'ваш_пароль';
-FLUSH PRIVILEGES;
-EXIT;
-```
-
-Затем создайте базу данных:
+3. Проверьте подключение вручную:
 ```bash
-mysql -u root -p < /var/www/eshop/core/eshop.sql
-```
-
-**Вариант 3: Если MySQL не запущен**
-```bash
-sudo systemctl start mysql
-sudo systemctl enable mysql
+mysql -u root -p123qweasd eshop
 ```
 
 ### Ошибка 403 Forbidden
+
 ```bash
 sudo chown -R www-data:www-data /var/www/eshop
 sudo chmod -R 755 /var/www/eshop
 ```
 
-### Ошибка подключения к БД
-Проверьте настройки в `/var/www/eshop/core/init.php`:
-```php
-const DB = [
-    'HOST' => 'localhost',
-    'USER' => 'root',
-    'PASS' => 'ваш_пароль',
-    'NAME' => 'eshop',
-];
-```
-
-Пароль MySQL root можно найти в: `/root/mysql_root_password.txt`
-
 ### Проблемы с роутингом
-Убедитесь, что файл `.htaccess` существует в `/var/www/eshop/` и модуль `mod_rewrite` включен:
+
+Убедитесь, что модуль `mod_rewrite` включен:
+
 ```bash
 sudo a2enmod rewrite
 sudo systemctl restart apache2
@@ -174,7 +249,7 @@ sudo systemctl restart apache2
 
 1. **Смените пароль администратора** после первого входа
 2. **Используйте сильные пароли** для MySQL
-3. **Настройте файрвол**:
+3. **Настройте файрвол:**
 ```bash
 sudo ufw allow 22/tcp
 sudo ufw allow 80/tcp
@@ -182,15 +257,7 @@ sudo ufw allow 443/tcp
 sudo ufw enable
 ```
 
-4. **Регулярно обновляйте систему**:
+4. **Регулярно обновляйте систему:**
 ```bash
 sudo apt-get update && sudo apt-get upgrade -y
 ```
-
-## Поддержка
-
-При возникновении проблем проверьте:
-1. Логи Apache: `/var/log/apache2/error.log`
-2. Логи приложения: `/var/www/eshop/app/admin/error.log`
-3. Статус сервисов: `sudo systemctl status apache2 mysql`
-

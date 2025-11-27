@@ -3,7 +3,7 @@
 set -e
 
 echo "=========================================="
-echo "  Быстрое развертывание проекта"
+echo "  Быстрое обновление проекта"
 echo "=========================================="
 
 if [ "$EUID" -ne 0 ]; then 
@@ -12,9 +12,10 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 PROJECT_DIR="/var/www/eshop"
+MYSQL_ROOT_PASSWORD="123qweasd"
 
 if [ ! -d "${PROJECT_DIR}" ]; then
-    echo "Ошибка: Проект не установлен. Сначала выполните install.sh"
+    echo "Ошибка: Проект не установлен. Сначала выполните deploy.sh"
     exit 1
 fi
 
@@ -51,6 +52,13 @@ HTACCESS_EOF
 fi
 
 echo ""
+echo "Обновление конфигурации БД..."
+if [ -f "${PROJECT_DIR}/core/init.php" ]; then
+    sed -i "s/'PASS' => '[^']*',/'PASS' => '${MYSQL_ROOT_PASSWORD}',/" ${PROJECT_DIR}/core/init.php
+    echo "Пароль БД обновлен в конфигурации"
+fi
+
+echo ""
 echo "Настройка прав доступа..."
 chown -R www-data:www-data ${PROJECT_DIR}
 find ${PROJECT_DIR} -type d -exec chmod 755 {} \;
@@ -68,6 +76,5 @@ systemctl restart apache2
 
 echo ""
 echo "=========================================="
-echo "  Развертывание завершено!"
+echo "  Обновление завершено!"
 echo "=========================================="
-
