@@ -1,8 +1,5 @@
 <?php
 class Cleaner {
-    /**
-     * Очистка строки от опасных символов
-     */
     public static function str($value) {
         if (!is_string($value)) {
             return '';
@@ -13,9 +10,6 @@ class Cleaner {
         return $value;
     }
     
-    /**
-     * Получение положительного целого числа
-     */
     public static function uint($value) {
         $value = filter_var($value, FILTER_VALIDATE_INT);
         if ($value === false || $value < 0) {

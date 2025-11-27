@@ -1,5 +1,4 @@
 <?php
-    // Если заголовки еще не отправлены, делаем редирект
     if (!headers_sent()) {
         header('Refresh: 3, url=/catalog');
     }

@@ -3,7 +3,7 @@ $itemId = Cleaner::uint($_GET['id'] ?? 0);
 if ($itemId > 0) {
     try {
         Eshop::removeItemFromBasket($itemId);
-        ob_end_clean(); // Очищаем буфер перед редиректом
+        ob_end_clean();
         header('Location: /basket?removed=1');
         exit;
     } catch (Exception $e) {
@@ -15,7 +15,7 @@ if ($itemId > 0) {
         <?php
     }
 } else {
-    ob_end_clean(); // Очищаем буфер перед редиректом
+    ob_end_clean();
     header('Location: /basket');
     exit;
 }

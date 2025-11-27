@@ -6,7 +6,6 @@
 	<title>Книжный магазин</title>
 	<link rel='stylesheet' href='/css/style.css'>
 	<style>
-		/* Анимированная сетка на фоне */
 		body {
 			position: relative;
 		}
@@ -61,7 +60,6 @@
 			}
 		}
 		
-		/* Дополнительный эффект свечения */
 		.grid-shimmer {
 			position: absolute;
 			top: 0;
@@ -85,7 +83,6 @@
 			}
 		}
 		
-		/* Глитч кнопка */
 		.glitch-button {
 			position: relative;
 			display: inline-flex;
@@ -149,7 +146,6 @@
 		}
 	</style>
 	<script>
-		// Глитч эффект для кнопки
 		document.addEventListener('DOMContentLoaded', function() {
 			const glitchButtons = document.querySelectorAll('.glitch-button');
 			const glitchChars = ['№', '@', '*', '^', '&', '$', '|', '?', '0', '1'];
@@ -162,7 +158,6 @@
 				const chars = originalText.split('');
 				const charElements = [];
 				
-				// Создаем элементы для каждого символа
 				glitchText.innerHTML = '';
 				chars.forEach((char, index) => {
 					const span = document.createElement('span');
@@ -174,7 +169,6 @@
 					charElements.push(span);
 				});
 				
-				// Функция случайного символа (отличного от текущего)
 				function getRandomChar(currentChar) {
 					let newChar;
 					do {
@@ -183,43 +177,36 @@
 					return newChar;
 				}
 				
-				// Функция случайного цвета для глитча
 				const glitchColors = ['#ffffff', '#000000'];
 				function getRandomColor() {
 					return glitchColors[Math.floor(Math.random() * glitchColors.length)];
 				}
 				
-				// Постоянная быстрая смена символов - без остановки
 				let constantGlitchInterval = setInterval(() => {
-					// Меняем все символы постоянно, не возвращаем к оригинальным
 					charElements.forEach((element, index) => {
-						// Случайно решаем, менять ли этот символ (80% вероятность)
 						if (Math.random() < 0.8) {
 							const newChar = glitchChars[Math.floor(Math.random() * glitchChars.length)];
 							element.textContent = newChar;
 							element.style.color = getRandomColor();
 						}
 					});
-				}, 30); // 30ms между сменами - постоянная смена
+				}, 30);
 				
-				// Усиленный глитч при наведении - все символы меняются быстрее
 				let hoverGlitchInterval;
 				button.addEventListener('mouseenter', () => {
 					hoverGlitchInterval = setInterval(() => {
-						// Меняем все символы при наведении (100% вероятность)
 						charElements.forEach((element) => {
 							const newChar = glitchChars[Math.floor(Math.random() * glitchChars.length)];
 							element.textContent = newChar;
 							element.style.color = getRandomColor();
 						});
-					}, 15); // 15ms (быстрее при наведении)
+					}, 15);
 				});
 				
 				button.addEventListener('mouseleave', () => {
 					if (hoverGlitchInterval) {
 						clearInterval(hoverGlitchInterval);
 					}
-					// Восстанавливаем все символы
 					charElements.forEach(element => {
 						element.textContent = element.dataset.original;
 						element.style.color = '';

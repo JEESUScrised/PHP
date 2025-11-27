@@ -1,25 +1,20 @@
 <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // Очистка данных из формы
         $login = Cleaner::str($_POST['login'] ?? '');
-        $password = $_POST['password'] ?? ''; // Пароль НЕ очищаем через Cleaner, чтобы не потерять спецсимволы
+        $password = $_POST['password'] ?? '';
 
-        // Валидация
         if (empty($login) || empty($password)) {
             throw new Exception('Логин и пароль обязательны для заполнения');
         }
 
-        // Создание объекта User
         $user = new User($login, $password);
 
-        // Попытка входа
         if (Eshop::logIn($user)) {
-            ob_end_clean(); // Очищаем буфер перед редиректом
+            ob_end_clean();
             header('Location: /admin');
             exit;
         } else {
-            // Дополнительная проверка для отладки
             $dbUser = Eshop::userGet($user);
             if (!$dbUser) {
                 throw new Exception('Пользователь с таким логином не найден');
@@ -36,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php
     }
 } else {
-    ob_end_clean(); // Очищаем буфер перед редиректом
+    ob_end_clean();
     header('Location: /enter');
     exit;
 }

@@ -2,9 +2,6 @@
 class Eshop {
     private static $db = null;
 
-    /**
-     * Инициализация соединения с базой данных
-     */
     public static function init(array $dbConfig) {
         try {
             $dsn = "mysql:host={$dbConfig['HOST']};dbname={$dbConfig['NAME']};charset=utf8mb4";
@@ -17,9 +14,6 @@ class Eshop {
         }
     }
 
-    /**
-     * Добавление товара в каталог
-     */
     public static function addItemToCatalog(Book $book) {
         try {
             $stmt = self::$db->prepare("CALL spAddItemToCatalog(?, ?, ?, ?)");
@@ -35,9 +29,6 @@ class Eshop {
         }
     }
 
-    /**
-     * Получение всех товаров из каталога
-     */
     public static function getItemsFromCatalog() {
         try {
             $stmt = self::$db->query("CALL spGetCatalog()");
@@ -57,23 +48,14 @@ class Eshop {
         }
     }
 
-    /**
-     * Добавление товара в корзину
-     */
     public static function addItemToBasket($itemId, $quantity = 1) {
         return Basket::add($itemId, $quantity);
     }
 
-    /**
-     * Удаление товара из корзины
-     */
     public static function removeItemFromBasket($itemId) {
         return Basket::remove($itemId);
     }
 
-    /**
-     * Получение товаров из корзины
-     */
     public static function getItemsFromBasket() {
         $basket = Basket::get();
         $itemIds = [];
@@ -111,14 +93,10 @@ class Eshop {
         }
     }
 
-    /**
-     * Сохранение заказа
-     */
     public static function saveOrder(Order $order) {
         try {
             self::$db->beginTransaction();
 
-            // Сохранение заказа
             $orderId = Basket::getOrderId();
             $order->order_id = $orderId;
             
@@ -131,7 +109,6 @@ class Eshop {
                 $order->address
             ]);
 
-            // Сохранение товаров заказа
             $basket = Basket::get();
             foreach ($basket as $key => $quantity) {
                 if ($key !== 'order-id' && is_numeric($key)) {
@@ -146,7 +123,6 @@ class Eshop {
 
             self::$db->commit();
             
-            // Очистка корзины
             Basket::clear();
             
             return true;
@@ -158,12 +134,8 @@ class Eshop {
         }
     }
 
-    /**
-     * Получение всех заказов
-     */
     public static function getOrders() {
         try {
-            // Используем прямой запрос вместо хранимой процедуры для избежания проблем с множественными результатами
             $stmt = self::$db->query("SELECT id, order_id, customer, email, phone, address, created FROM orders ORDER BY created DESC");
             $orders = [];
             
@@ -178,7 +150,6 @@ class Eshop {
                     $row['created']
                 );
                 
-                // Получение товаров заказа - используем прямой запрос вместо хранимой процедуры
                 $stmtItems = self::$db->prepare("
                     SELECT oi.id, oi.order_id, oi.item_id, oi.quantity, 
                            c.title, c.author, c.price, c.pubyear
@@ -210,9 +181,6 @@ class Eshop {
         }
     }
 
-    /**
-     * Добавление пользователя (админа)
-     */
     public static function userAdd(User $user) {
         try {
             $hashedPassword = self::createHash($user->password);
@@ -228,9 +196,6 @@ class Eshop {
         }
     }
 
-    /**
-     * Проверка существования пользователя
-     */
     public static function userCheck(User $user): bool {
         try {
             $stmt = self::$db->prepare("CALL spGetAdmin(?)");
@@ -242,12 +207,8 @@ class Eshop {
         }
     }
 
-    /**
-     * Получение пользователя
-     */
     public static function userGet(User $user): ?User {
         try {
-            // Используем прямой запрос вместо хранимой процедуры для надежности
             $stmt = self::$db->prepare("SELECT id, login, password, email, created FROM admins WHERE login = ? LIMIT 1");
             $stmt->execute([$user->login]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -266,27 +227,17 @@ class Eshop {
         }
     }
 
-    /**
-     * Создание хеша пароля
-     */
     public static function createHash(string $password): string {
         return password_hash($password, PASSWORD_DEFAULT);
     }
 
-    /**
-     * Проверка, залогинен ли админ
-     */
     public static function isAdmin(): bool {
         return isset($_SESSION['admin']) && $_SESSION['admin'] === true;
     }
 
-    /**
-     * Вход в систему
-     */
     public static function logIn(User $user): bool {
         $dbUser = self::userGet($user);
         if ($dbUser) {
-            // Проверяем пароль
             if (password_verify($user->password, $dbUser->password)) {
                 $_SESSION['admin'] = true;
                 $_SESSION['admin_login'] = $dbUser->login;
@@ -296,9 +247,6 @@ class Eshop {
         return false;
     }
 
-    /**
-     * Выход из системы
-     */
     public static function logOut() {
         unset($_SESSION['admin']);
         unset($_SESSION['admin_login']);

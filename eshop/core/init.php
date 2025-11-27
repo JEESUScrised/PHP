@@ -3,16 +3,10 @@ const CORE_DIR = 'core/';
 const APP_DIR = 'app/';
 const ADMIN_DIR = APP_DIR . 'admin/';
 
-/* 
-    ////////////////////////////////////
-    ////// ЭТОТ БЛОК ДЛЯ ОТЛАДКИ //////
-    ///////////////////////////////////
-*/
 set_include_path(get_include_path() . PATH_SEPARATOR . CORE_DIR . PATH_SEPARATOR . APP_DIR . PATH_SEPARATOR . ADMIN_DIR);
 spl_autoload_extensions('.class.php');
 spl_autoload_register();
 
-// Явная загрузка классов для надежности
 require_once __DIR__ . "/Cleaner.class.php";
 require_once __DIR__ . "/Eshop.class.php";
 require_once __DIR__ . "/Book.class.php";
@@ -33,18 +27,12 @@ function error_handler($no, $msg, $file, $line) {
 }
 set_error_handler('error_handler');
 function exception_handler($e) {
-    // Не обрабатываем исключения, которые уже обрабатываются в try-catch
-    // Это позволит try-catch блокам корректно обрабатывать свои исключения
     if (error_get_last() === null) {
         errors_log($e->getMessage(), $e->getFile(), $e->getLine());
     }
 }
 set_exception_handler('exception_handler');
-/* 
-    //////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////
-    /////////////////////////////////////////////////////////////
-*/
+
 const DB = [
     'HOST' => 'localhost',
     'USER' => 'root',
@@ -52,12 +40,10 @@ const DB = [
     'NAME' => 'eshop',
 ];
 
-// Открытие сессии
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Проверка доступа к админке (кроме страниц входа) - ДО инициализации и вывода HTML
 $path = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
 $path = rtrim($path, '/');
 $adminPaths = ['/admin', '/admin/add_item_to_catalog', '/admin/save_item_to_catalog', 
@@ -65,7 +51,6 @@ $adminPaths = ['/admin', '/admin/add_item_to_catalog', '/admin/save_item_to_cata
 $isAdminPath = in_array($path, $adminPaths);
 
 if ($isAdminPath && $path !== '/enter' && $path !== '/login') {
-    // Проверяем сессию напрямую, без подключения к БД
     if (!isset($_SESSION['admin']) || $_SESSION['admin'] !== true) {
         if (!headers_sent()) {
             header('Location: /enter');
@@ -74,23 +59,18 @@ if ($isAdminPath && $path !== '/enter' && $path !== '/login') {
     }
 }
 
-// Инициализация приложения
 try {
-    // Временно отключаем глобальный обработчик исключений для корректной обработки ошибок БД
     $oldExceptionHandler = set_exception_handler(null);
     Eshop::init(DB);
-    // Восстанавливаем обработчик после успешной инициализации
     if ($oldExceptionHandler) {
         set_exception_handler($oldExceptionHandler);
     } else {
         set_exception_handler('exception_handler');
     }
 } catch (Exception $e) {
-    // Восстанавливаем обработчик перед обработкой ошибки
     set_exception_handler('exception_handler');
     $errorMsg = $e->getMessage();
     if (strpos($errorMsg, 'could not find driver') !== false) {
-        // Выводим ошибку только если заголовки еще не отправлены
         if (!headers_sent()) {
             header('Content-Type: text/html; charset=utf-8');
         }
@@ -118,8 +98,6 @@ try {
         </html>
         ');
     }
-    // Для других ошибок БД просто выводим сообщение без выброса исключения
-    // чтобы не попасть в глобальный обработчик
     if (!headers_sent()) {
         header('Content-Type: text/html; charset=utf-8');
     }

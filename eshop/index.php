@@ -1,18 +1,15 @@
 <?php
 error_reporting(E_ALL);
 
-// Включаем буферизацию вывода, чтобы можно было делать редиректы даже после начала вывода
 ob_start();
 
 require_once 'core/init.php';
 
-// Сначала выполняем роутинг (может делать редиректы)
-// Но не подключаем файлы напрямую, а сохраняем путь к файлу
 $routeFile = null;
 switch (rtrim($path, '/')):
     case '':
     case '/index.php':
-        ob_end_clean(); // Очищаем буфер перед редиректом
+        ob_end_clean();
         header('Location: /catalog');
         exit;
     case '/catalog':
@@ -64,12 +61,10 @@ switch (rtrim($path, '/')):
         $routeFile = '404.php';
 endswitch;
 
-// Теперь выводим HTML и подключаем нужный файл
 require_once 'app/__header.php';
 if ($routeFile) {
     require_once 'app/' . $routeFile;
 }
 require_once 'app/__footer.php';
 
-// Отправляем буферизованный вывод
 ob_end_flush();
